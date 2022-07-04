@@ -1,6 +1,6 @@
 # LDS_KF_KS
 
-Go to [Joaquin Rapela's Github repo](https://link-url-here.org) for more documentation and Python code about LDS, KF, KS.
+Go to [Joaquin Rapela's Github repo]([https://link-url-here.org](https://github.com/joacorapela/lds_python.git)) for documentation and Python code about LDS, KF, KS.
 
 Running simulation.py
 - By default low noise simulation generated
