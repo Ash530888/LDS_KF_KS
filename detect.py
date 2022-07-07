@@ -282,7 +282,7 @@ def compareOutputs(measx, f1x, f2x, measy, f1y, f2y):
 
 
 def main(readFromCSV=False):
-    dt=1e-5
+    dt=0.019936
     x_std_meas=y_std_meas=1e-10
     std_acc= 1e-10
     
