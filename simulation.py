@@ -462,7 +462,7 @@ def main():
     
     # LESS NOISY SIM
 ##    x_std_meas = y_std_meas = 1e-10
-##    std_acc = 1e-10
+##    std_acc = 1e4
 
     # MORE NOISY SIM
     x_std_meas = y_std_meas = 1e2
