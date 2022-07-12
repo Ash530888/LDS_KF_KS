@@ -458,15 +458,15 @@ def learnParams(std_acc, x_std_meas, y_std_meas, dt, N):
 
 def main():
     N=10000
-    dt = 1e-5
+    dt = 1e-3
     
     # LESS NOISY SIM
 ##    x_std_meas = y_std_meas = 1e-10
 ##    std_acc = 1e4
 
     # MORE NOISY SIM
-    x_std_meas = y_std_meas = 1e2
-    std_acc = 1e4
+    x_std_meas = y_std_meas = 1e-3
+    std_acc = 1.0
 
     B = np.array([[1, dt, .5*dt**2, 0, 0, 0],
                   [0, 1, dt, 0, 0, 0],
@@ -536,7 +536,7 @@ def main():
         # measured[i,:] = y[:,i] + noise[i]
 
     # learnParams(std_acc, x_std_meas, y_std_meas, dt, N)
-    learnParams(1e2 , 1e2, 1e2, dt, N)
+    # learnParams(1e2 , 1e2, 1e2, dt, N)
 
     
     filtered = inference.filterLDS(measured, B, Q, m0, V0, Z, R)
