@@ -1,8 +1,7 @@
 from KalmanFilter import KalmanFilter
 
 import numpy as np
-import matplotlib.pyplot as plt
-import plotly.graph_objects as go
+import plot
 import math
 
 import cv2
@@ -12,273 +11,13 @@ import sys
 
 import filter_smooth
 
-
+# use to evaluate accuracy
 def rmse(x, x2):
     tot=0
     for i in range(len(x)):
         tot+=(x[i]-x2[i])
 
     return math.sqrt(abs(tot)/len(x))
-
-def plotPositions(truex, filteredx, predictedx, measuredx, smoothedx, truey, filteredy, predictedy, measuredy, smoothedy, total):
-
-    trace_mes = go.Scatter(x=measuredx, y=measuredy,
-                           mode="markers",
-                           name="measured",
-                           showlegend=True,
-                           )
-    trace_true = go.Scatter(x=truex, y=truey,
-                            mode="markers",
-                            name="true",
-                            showlegend=True,
-                            )
-    trace_filtered = go.Scatter(x=filteredx,
-                                y=filteredy,
-                                mode="markers",
-                                name="filtered",
-                                showlegend=True,
-                                )
-    trace_smoothed = go.Scatter(x=smoothedx,
-                                y=smoothedy,
-                                mode="markers",
-                                name="smoothed",
-                                showlegend=True,
-                                )
-    fig = go.Figure()
-    fig.add_trace(trace_mes)
-    fig.add_trace(trace_true)
-    fig.add_trace(trace_filtered)
-    fig.add_trace(trace_smoothed)
-    fig.update_layout(xaxis_title="x (pixels)", yaxis_title="y (pixels)",
-                      paper_bgcolor='rgba(0,0,0,0)',
-                      plot_bgcolor='rgba(0,0,0,0)')
-    fig.show()
-    #import pdb; pdb.set_trace()
-
-def plotVelocities(measured, filtered, smoothed, dt, N):
-    fd1 = []
-    fd2 = []
-
-    for i in range(1, N):
-        fd1.append( (measured[i, 0] - measured[i-1, 0]) / dt)
-        fd2.append( (measured[i, 1] - measured[i-1,1]) / dt)
-
-    x = np.arange(0, N*dt, dt)
-    
-    trace_fdx = go.Scatter(x=x, y=fd1,
-                           mode="markers",
-                           name="Finite Diff x",
-                           marker=dict(
-                                color='red',
-                                line=dict(
-                                    color='red'
-                                )
-                            ),
-                           showlegend=True,
-                           )
-    trace_fdy = go.Scatter(x=x, y=fd2,
-                           mode="markers",
-                           marker_symbol="circle-open",
-                           name="Finite Diff y",
-                           marker=dict(
-                               color='red',
-                                line=dict(
-                                    color='red'
-                                )
-                            ),
-                           showlegend=True,
-                           )
-    trace_smx = go.Scatter(x=x, y=smoothed[1, 0, :N],
-                            mode="markers",
-                            name="Smoothed x",
-                           marker=dict(
-                                color='green',
-                                line=dict(
-                                    color='green'
-                                )
-                            ),
-                            showlegend=True,
-                            )
-    trace_smy = go.Scatter(x=x, y=smoothed[4, 0, :N],
-                           mode="markers",
-                           marker_symbol="circle-open",
-                           name="Smoothed y",
-                           marker=dict(
-                               color='green',
-                                line=dict(
-                                    color='green'
-                                )
-                            ),
-                           showlegend=True,
-                           )
-    trace_filtx = go.Scatter(x=x, y=filtered[1, 0, :N],
-                            mode="markers",
-                            name="Filtered x",
-                             marker=dict(
-                                color='purple',
-                                line=dict(
-                                    color='purple'
-                                )
-                            ),
-                            showlegend=True,
-                            )
-    trace_filty = go.Scatter(x=x, y=filtered[4, 0, :N],
-                            mode="markers",
-                           marker_symbol="circle-open",
-                            name="Filtered y",
-                             marker=dict(
-                                 color='purple',
-                                line=dict(
-                                    color='purple'
-                                )
-                            ),
-                            showlegend=True,
-                            )
-    
-    fig = go.Figure()
-    fig.add_trace(trace_fdx)
-    fig.add_trace(trace_fdy)
-    fig.add_trace(trace_filtx)
-    fig.add_trace(trace_filty)
-    fig.add_trace(trace_smy)
-    fig.add_trace(trace_smx)
-    fig.update_layout(xaxis_title="Time", yaxis_title="Velocity",
-                      paper_bgcolor='rgba(0,0,0,0)',
-                      plot_bgcolor='rgba(0,0,0,0)')
-    fig.show()
-    #import pdb; pdb.set_trace()
-    return fd1, fd2
-
-
-def plotAccelerations(fd_v1, fd_v2, filtered, smoothed, dt, N):
-    fd1 = []
-    fd2 = []
-
-    for i in range(1, N-1):
-        fd1.append( (fd_v1[i] - fd_v1[i-1]) / dt)
-        fd2.append( (fd_v2[i] - fd_v2[i-1]) / dt)
-
-    x = np.arange(0, N*dt, dt)
-    
-    trace_fdx = go.Scatter(x=x, y=fd1,
-                           mode="markers",
-                           name="Finite Diff x.",
-                           marker=dict(
-                                color='red',
-                                line=dict(
-                                    color='red'
-                                )
-                            ),
-                           showlegend=True,
-                           )
-    trace_fdy = go.Scatter(x=x, y=fd2,
-                           mode="markers",
-                           marker_symbol="circle-open",
-                           name="Finite Diff y",
-                           marker=dict(
-                                color='red',
-                                line=dict(
-                                    color='red'
-                                )
-                            ),
-                           showlegend=True,
-                           )
-    trace_smx = go.Scatter(x=x, y=smoothed[2, 0, :N],
-                            mode="markers",
-                            name="Smoothed x",
-                           marker=dict(
-                                color='green',
-                                line=dict(
-                                    color='green'
-                                )
-                            ),
-                            showlegend=True,
-                            )
-    trace_smy = go.Scatter(x=x, y=smoothed[5, 0, :N],
-                            mode="markers",
-                           marker_symbol="circle-open",
-                            name="Smoothed y",
-                           marker=dict(
-                                color='green',
-                                line=dict(
-                                    color='green'
-                                )
-                            ),
-                            showlegend=True,
-                            )
-    trace_filtx = go.Scatter(x=x, y=filtered[2, 0, :N],
-                            mode="markers",
-                            name="Filtered x",
-                             marker=dict(
-                                color='purple',
-                                line=dict(
-                                    color='purple'
-                                )
-                            ),
-                            showlegend=True,
-                            )
-    trace_filty = go.Scatter(x=x, y=filtered[5, 0, :N],
-                            mode="markers",
-                           marker_symbol="circle-open",
-                            name="Filtered y",
-                             marker=dict(
-                                color='purple',
-                                line=dict(
-                                    color='purple'
-                                )
-                            ),
-                            showlegend=True,
-                            )
-    
-    fig = go.Figure()
-    fig.add_trace(trace_fdx)
-    fig.add_trace(trace_fdy)
-    fig.add_trace(trace_filtx)
-    fig.add_trace(trace_filty)
-    fig.add_trace(trace_smx)
-    fig.add_trace(trace_smy)
-    fig.update_layout(xaxis_title="Time", yaxis_title="Acceleration",
-                      paper_bgcolor='rgba(0,0,0,0)',
-                      plot_bgcolor='rgba(0,0,0,0)')
-    fig.show()
-
-def compareOutputs(measx, f1x, f2x, measy, f1y, f2y):
-
-    fig, ax = plt.subplots()
-
-    line1,=ax.plot(measx, measy, label="measured")
-    line2,=ax.plot(f1x, f1y, label="mine")
-    line3,=ax.plot(f2x, f2y, label="Joaquin's")
-
-
-    lines=[line1, line2, line3]
-
-    leg=ax.legend()
-    graphs = {}
-
-    lineLegends=leg.get_lines()
-    
-    for i in range(len(lines)):
-        lineLegends[i].set_picker(True)
-        lineLegends[i].set_pickradius(5)
-        graphs[lineLegends[i]]=lines[i]
-
-    def on_pick(event):
-        legend = event.artist
-        isVisible = legend.get_visible()
-
-        graphs[legend].set_visible(not isVisible)
-        legend.set_visible(not isVisible)
-
-        fig.canvas.draw()
-
-    plt.connect('pick_event', on_pick)
-
-
-    plt.xlabel('x')
-    plt.ylabel('y')
-
-    plt.show()
 
 
 def main(readFromCSV=False):
@@ -307,35 +46,30 @@ def main(readFromCSV=False):
                   dtype=np.double)*std_acc**2
 
     R = np.diag([x_std_meas**2, y_std_meas**2])
+
+    m0 = np.array([0, 0, 0, 0, 0, 0], dtype=np.double)
+    V0 = np.diag(np.ones(len(m0))*0.001)
     
         
     if readFromCSV:
         measured = np.genfromtxt('data/postions_session003_start0.00_end15548.27.csv',delimiter=',')
-        
+
         total = 10000
+        #total = measured.shape[0] -1
 
         measured = measured[1:total+1]
-
-        contaminated = np.empty((total,2))
-        contaminated[:] = np.nan
-
-        noise = 1e-10
-        
-        for i in range(total):
-            contaminated[i, 0] = measured[i][1] + noise
-            contaminated[i, 1] = measured[i][2] + noise
 
         filtered, smoothed=filter_smooth.main([])
 
 
-        #plotPositions(truex, filteredx, predictedx, measuredx, smoothedx, truey, filteredy, predictedy, measuredy, smoothedy, total)
-        plotPositions(measured[:,1], filtered["xnn"][0,0,:], filtered["xnn1"][0,0,:], contaminated[:,0], smoothed["xnN"][0,0,:], measured[:,2], filtered["xnn"][3,0,:], filtered["xnn1"][3,0,:], contaminated[:,1], smoothed["xnN"][3,0,:], total)
+        # plotPositions(truex, filteredx, predictedx, measuredx, smoothedx, truey, filteredy, predictedy, measuredy, smoothedy, total)
+        plot.plotPositions(False, filtered["xnn"][0,0,:], filtered["xnn1"][0,0,:], measured[:,1], smoothed["xnN"][0,0,:], False, filtered["xnn"][3,0,:], filtered["xnn1"][3,0,:], measured[:,2], smoothed["xnN"][3,0,:], total)
 
-        # plotVelocities(measured, filtered, smoothed, dt, N)
-        fd_v1, fd_v2 = plotVelocities(contaminated, filtered["xnn"], smoothed["xnN"], dt, total)
+        # plotVelocities(true_vel, measured, filtered, smoothed, dt, N)
+        fd_v1, fd_v2 = plot.plotVelocities(False, measured[:,[1,2]].T, filtered["xnn"], smoothed["xnN"], dt, total)
 
-        # plotAccelerations(fd_v1, fd_v2, filtered, smoothed, dt, N)
-        plotAccelerations(fd_v1, fd_v2, filtered["xnn"], smoothed["xnN"], dt, total)
+        # plotAccelerations(fd_v1, fd_v2, true_acc, filtered, smoothed, dt, N)
+        plot.plotAccelerations(fd_v1, fd_v2,False, filtered["xnn"], smoothed["xnN"], dt, total)
         
     else:
         cap = cv2.VideoCapture("mouse.avi")
