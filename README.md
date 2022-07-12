@@ -3,6 +3,7 @@
 Go to [Joaquin Rapela's Github repo](https://github.com/joacorapela/lds_python.git) for documentation and Python code about LDS, KF, KS.
 
 To produce position, velocity, acceleration plots for a simulated mouse run simulation.py.
+
 To produce position, velocity, acceleration plots for the real mouse run detect.py.
 
 Running simulation.py
