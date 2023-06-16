@@ -13,5 +13,6 @@ Running simulation.py
 
 Running detect.py
 - Pass True to main() to use KF, KS on csv values, and False to use KF, KS on video
+
 Note: The csv and video data I used do not belong to me so you will have to provide your own video (same directory as detect.py) of a moving object or csv values (time,x coordinate,y coordinate) in a folder called 'data'
 
