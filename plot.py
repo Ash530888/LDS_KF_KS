@@ -9,7 +9,7 @@ def plotPositions(truex, filteredx, predictedx, measuredx, smoothedx, truey, fil
                            name="measured",
                            showlegend=True,
                            )
-    if truex!=False and truey!=False:
+    if truex.all()!=False and truey.all()!=False:
         trace_true = go.Scatter(x=truex, y=truey,
                                 mode="markers",
                                 name="true",
@@ -29,7 +29,7 @@ def plotPositions(truex, filteredx, predictedx, measuredx, smoothedx, truey, fil
                                 )
     fig = go.Figure()
     fig.add_trace(trace_mes)
-    if truex!=False and truey!=False:
+    if truex.all()!=False and truey.all()!=False:
         fig.add_trace(trace_true)
     fig.add_trace(trace_filtered)
     fig.add_trace(trace_smoothed)
@@ -118,7 +118,8 @@ def plotVelocities(true_vel, measured, filtered, smoothed, dt, N):
                             ),
                             showlegend=True,
                             )
-    if true_vel!=False:
+
+    if true_vel.all()!=False:
         trace_truex = go.Scatter(x=x, y=true_vel[0, :],
                                 mode="markers",
                                 name="True x",
@@ -148,7 +149,7 @@ def plotVelocities(true_vel, measured, filtered, smoothed, dt, N):
     fig.add_trace(trace_fdy)
     fig.add_trace(trace_filtx)
     fig.add_trace(trace_filty)
-    if true_vel!=False:
+    if true_vel.all()!=False:
         fig.add_trace(trace_truex)
         fig.add_trace(trace_truey)
     fig.add_trace(trace_smx)
@@ -239,7 +240,7 @@ def plotAccelerations(fd_v1, fd_v2, true_acc, filtered, smoothed, dt, N):
                             ),
                             showlegend=True,
                             )
-    if true_acc!=False:
+    if true_acc.all()!=False:
         trace_truex = go.Scatter(x=x, y=true_acc[0, :],
                                 mode="markers",
                                 name="True x",
@@ -269,7 +270,7 @@ def plotAccelerations(fd_v1, fd_v2, true_acc, filtered, smoothed, dt, N):
     fig.add_trace(trace_fdy)
     fig.add_trace(trace_filtx)
     fig.add_trace(trace_filty)
-    if true_acc!=False:
+    if true_acc.all()!=False:
         fig.add_trace(trace_truex)
         fig.add_trace(trace_truey)
     fig.add_trace(trace_smx)
